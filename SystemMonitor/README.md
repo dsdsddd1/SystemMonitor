@@ -48,6 +48,7 @@ dotnet publish -c Release -r win-x64 --self-contained
 3. 可以拖拽窗口到任意位置
 4. 窗口始终显示在最上层
 5. 数据每 5 秒自动更新
+6. 右键点击窗口可选择关闭
 
 ## 窗口特性
 
@@ -55,6 +56,18 @@ dotnet publish -c Release -r win-x64 --self-contained
 - **半透明**：窗口背景半透明，可看到后面的内容
 - **可拖拽**：按住标题栏可拖拽窗口
 - **跟随系统主题**：自动适应 Windows 深色/浅色主题
+- **右键关闭**：右键菜单可关闭程序
+
+## 监控说明
+
+| 指标 | 单位 | 说明 |
+|------|------|------|
+| CPU 占用 | % | CPU 总体使用率 |
+| CPU 温度 | °C | CPU 核心温度 |
+| GPU 占用 | % | GPU 核心使用率 |
+| GPU 温度 | °C | GPU 核心温度 |
+| 显存占用 | MB/GB | 显存使用量/总量 |
+| 内存占用 | MB/GB | 物理内存使用量/总量 |
 
 ## 项目结构
 
@@ -78,7 +91,8 @@ SystemMonitor/
 - C# 12
 - .NET 8.0
 - WPF (Windows Presentation Foundation)
-- LibreHardwareMonitorLib
+- LibreHardwareMonitorLib - 硬件信息读取
+- Win32 API (GlobalMemoryStatusEx) - 内存信息获取
 
 ## 常见问题
 
@@ -95,6 +109,10 @@ A: 可以将程序快捷方式放入 Windows 启动文件夹：
 ### Q: 如何修改刷新频率？
 
 A: 修改 `MainWindow.xaml.cs` 中的 `TimeSpan.FromSeconds(5)` 值。
+
+### Q: 内存显示为 0/0 MB？
+
+A: 已使用 Win32 API `GlobalMemoryStatusEx` 作为备选方案，确保内存信息正确显示。
 
 ## 许可证
 
