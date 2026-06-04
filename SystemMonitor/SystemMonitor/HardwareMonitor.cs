@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using LibreHardwareMonitor.Hardware;
 using SystemMonitor.Models;
 
@@ -7,6 +8,24 @@ public class HardwareMonitor : IDisposable
 {
     private Computer? _computer;
     private bool _disposed;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MEMORYSTATUSEX
+    {
+        public uint dwLength;
+        public uint dwMemoryLoad;
+        public ulong ullTotalPhys;
+        public ulong ullAvailPhys;
+        public ulong ullTotalPageFile;
+        public ulong ullAvailPageFile;
+        public ulong ullTotalVirtual;
+        public ulong ullAvailVirtual;
+        public ulong ullAvailExtendedVirtual;
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GlobalMemoryStatusEx(ref MEMORYSTATUSEX lpBuffer);
 
     public void Initialize()
     {
@@ -44,7 +63,22 @@ public class HardwareMonitor : IDisposable
             }
         }
         
+        if (info.MemoryTotal == 0)
+        {
+            GetMemoryFromWin32(info);
+        }
+        
         return info;
+    }
+
+    private static void GetMemoryFromWin32(SystemInfo info)
+    {
+        var memStatus = new MEMORYSTATUSEX { dwLength = (uint)Marshal.SizeOf<MEMORYSTATUSEX>() };
+        if (GlobalMemoryStatusEx(ref memStatus))
+        {
+            info.MemoryTotal = memStatus.ullTotalPhys / 1024 / 1024;
+            info.MemoryUsed = (memStatus.ullTotalPhys - memStatus.ullAvailPhys) / 1024 / 1024;
+        }
     }
 
     private void ProcessSensor(IHardware hardware, ISensor sensor, SystemInfo info)
@@ -105,10 +139,10 @@ public class HardwareMonitor : IDisposable
     {
         switch (sensor.SensorType)
         {
-            case SensorType.Data when sensor.Name.Contains("Used Memory"):
+            case SensorType.Data when sensor.Name.Contains("Used"):
                 info.MemoryUsed = value * 1024;
                 break;
-            case SensorType.Data when sensor.Name.Contains("Available Memory"):
+            case SensorType.Data when sensor.Name.Contains("Available"):
                 info.MemoryTotal = (info.MemoryUsed / 1024 + value) * 1024;
                 break;
         }
