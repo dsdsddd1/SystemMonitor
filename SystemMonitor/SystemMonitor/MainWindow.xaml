@@ -10,6 +10,12 @@
         Background="Transparent"
         ShowInTaskbar="False">
     
+    <Window.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="关闭" Click="CloseMenuItem_Click"/>
+        </ContextMenu>
+    </Window.ContextMenu>
+    
     <Border Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
             CornerRadius="8"
             Opacity="0.8">

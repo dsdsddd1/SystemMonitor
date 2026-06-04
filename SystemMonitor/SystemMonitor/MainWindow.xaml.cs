@@ -60,6 +60,11 @@ public partial class MainWindow : Window
         }
     }
 
+    private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
+    }
+
     protected override void OnClosed(EventArgs e)
     {
         _timer.Stop();
