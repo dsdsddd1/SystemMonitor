@@ -105,9 +105,6 @@ public class HardwareMonitor : IDisposable
     {
         switch (sensor.SensorType)
         {
-            case SensorType.Load when sensor.Name.Contains("Memory"):
-                info.MemoryUsed = value;
-                break;
             case SensorType.Data when sensor.Name.Contains("Used Memory"):
                 info.MemoryUsed = value * 1024;
                 break;
